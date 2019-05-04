@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser(description='Modify SFR router config')
 parser.add_argument('-ra', metavar='XXX.XXX.XXX.XXX',dest='routerip',help='router ip address')
 parser.add_argument('--login', metavar='****',dest='routerlogin',help='login of router web ui')
 parser.add_argument('--password', metavar='****',dest='routerpass',help='password of router web ui')
+parser.add_argument('--cred', metavar='FILE',dest='cred',help='file where credentials for web ui is stred firest line login second line password')
 parser.add_argument('-e',dest='enable',action='store_true',help=' enable all port that respect the filters in arguments')
 parser.add_argument('-d',dest='disable',action='store_true',help=' disable all port that respect the filters in arguments')
 parser.add_argument('-pe',dest='portext',metavar='PPPP or PPPP-PPPP',help=' define wich extern port or range of ports should be used for the filter ')
@@ -41,6 +42,10 @@ protocolxpath = "td[@data-title='Protocole']/text()"
 regex = re.compile(r'[\n\t\t]')
 
 
+if(args.cred != None):
+    f = open(args.cred,'r')
+    args.routerlogin = f.readline().strip()
+    args.routerpass = f.readline().strip()
 if(args.routerpass != None and args.routerlogin != None and args.routerip != None):
         c.setopt(c.POSTFIELDS, "login="+args.routerlogin+"&password="+args.routerpass)
         c.perform()
