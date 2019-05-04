@@ -18,7 +18,7 @@ parser.add_argument('-n',dest='name',metavar='NNNN',help=' define wich name shou
 parser.add_argument('-tt',dest='tcp',action='store_true',help='define that UDP protocol should be used for the filter ')
 parser.add_argument('-tu',dest='udp',action='store_true',help='define that UDP protocol should be used for the filter ')
 parser.add_argument('-tb',dest='both',action='store_true',help='define that UDP and TCP protocol should be used for the filter ')
-parser.add_argument('-i',dest='ipforw',metavar='PPPP or PPPP-PPPP',help=' define wich ip to forward should be used for the filter ')
+parser.add_argument('-i',dest='ipforw',metavar='XXX.XXX.XXX.XXX',help=' define wich ip to forward should be used for the filter ')
 # -a add port option
 # -r remove port option
 args = parser.parse_args()
