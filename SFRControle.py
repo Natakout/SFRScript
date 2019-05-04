@@ -25,31 +25,25 @@ parser.add_argument('-pe',dest='portext',metavar='PPPP or PPPP-PPPP',help=' defi
 args = parser.parse_args()
 print(args);
 
-tablexpath = "//table[@id='nat_config']//tbody//tr"
+buffer = BytesIO()
+c = pycurl.Curl()
+c.setopt(c.URL,args.routerip+'/login')
+c.setopt(c.COOKIEFILE,"cookie")
+c.setopt(c.COOKIEJAR,"cookie")
+c.setopt(c.FOLLOWLOCATION,1)
+c.setopt(c.WRITEDATA, buffer)
 
+tablexpath = "//table[@id='nat_config']//tbody//tr"
+idxpath = "td//span[@class='col_number']/text()"
+portxpath = "td[@data-title='Ports externes']/text()"
 if(args.routerpass != None and args.routerlogin != None and args.routerip != None):
-        buffer = BytesIO()
-        c = pycurl.Curl()
-        c.setopt(c.URL,args.routerip+'/login')
-        c.setopt(c.COOKIEFILE,"cookie")
-        c.setopt(c.COOKIEJAR,"cookie")
-        c.setopt(c.FOLLOWLOCATION,1)
-        c.setopt(c.WRITEDATA, buffer)
         c.setopt(c.POSTFIELDS, "login="+args.routerlogin+"&password="+args.routerpass)
         c.perform()
         reponse = buffer.getvalue()
         if(reponse.find(str.encode(args.routerpass)) == -1):
             c.close()
             exit(" Connexion au router impossible ")
-        c.close()
-
-buffer = BytesIO()
-c = pycurl.Curl()
 c.setopt(c.URL,args.routerip+'/network/nat')
-c.setopt(c.COOKIEFILE,"cookie")
-c.setopt(c.COOKIEJAR,"cookie")
-c.setopt(c.FOLLOWLOCATION,1)
-c.setopt(c.WRITEDATA, buffer)
 c.perform()
 reponse = buffer.getvalue()
 tree = html.fromstring(str(reponse))
@@ -57,24 +51,19 @@ print(tree.xpath(tablexpath))
 ids = []
 for tr in tree.xpath(tablexpath):
     ok = 1
-    idligne = tr.xpath("td//span[@class='col_number']/text()")
+    idligne = tr.xpath(idxpath)
     if(len(idligne) != 0):
         idligne = idligne[0]
-        portext = tr.xpath("td[@data-title='Ports externes']/text()")[0]
+        portext = tr.xpath(portxpath)[0]
+        ## add other parameters
         if(portext != args.portext):
             ok = 0
         if(ok == 1):
             ids.append(idligne)    
 print(ids)
 for id in ids :
-    buffer = BytesIO()
-    c = pycurl.Curl()
     poststr = "login="+args.routerlogin+"&password="+args.routerpass
-    c.setopt(c.URL,args.routerip+'/network/nat')
-    c.setopt(c.COOKIEFILE,"cookie")
-    c.setopt(c.COOKIEJAR,"cookie")
-    c.setopt(c.WRITEDATA, buffer)
-    c.setopt(c.FOLLOWLOCATION,1)
+    ## add other action
     if(args.enable == True):
         poststr = poststr+"&action_enable."+id+"=1"
     if(args.disable == True):
