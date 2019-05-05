@@ -23,7 +23,7 @@ parser.add_argument('-r',dest='remove',action='store_true',help=' remove all por
 parser.add_argument('-a',dest='add',action='store_true',help=' add a port rule with other parameters ')
 # -a add port option
 args = parser.parse_args()
-print(args);
+#print(args);
 
 buffer = BytesIO()
 c = pycurl.Curl()
@@ -58,7 +58,7 @@ c.setopt(c.URL,args.routerip+'/network/nat')
 c.perform()
 reponse = buffer.getvalue()
 tree = html.fromstring(str(reponse))
-print(tree.xpath(tablexpath))
+#print(tree.xpath(tablexpath))
 ids = []
 for tr in tree.xpath(tablexpath):
     ok = 1
@@ -72,7 +72,7 @@ for tr in tree.xpath(tablexpath):
         protocol = re.sub(r'\\t','',re.sub(r'\\n', '',str(tr.xpath(protocolxpath)[0])))
         ipforw = re.sub(r'\\t','',re.sub(r'\\n', '', str(tr.xpath(ipforwxpath)[0])))
         ## add other parameters
-        print(name)
+        #print(name)
         if(portext != args.portext and args.portext != None):
             ok = 0
         if(portint != args.portint and args.portint != None):
@@ -89,7 +89,7 @@ for tr in tree.xpath(tablexpath):
             ok = 0
         if(ok == 1):
             ids.append(idligne)    
-print(ids)
+#print(ids)
 poststr = "login="+args.routerlogin+"&password="+args.routerpass
 for id in ids :
     ## add other action
@@ -99,7 +99,7 @@ for id in ids :
         poststr = poststr+"&action_disable."+id+"=1"
     if(args.remove == True):
         poststr = poststr+"&action_remove."+id+"=1"
-    print(poststr)
+    #print(poststr)
     c.setopt(c.POSTFIELDS,poststr)
     c.perform()
 if(args.add == True):
@@ -129,7 +129,7 @@ if(args.add == True):
         poststr = poststr+"&nat_range=false"
         poststr = poststr+"&nat_extport="+args.portext
         poststr = poststr+"&nat_dstport="+args.portint
-    print(poststr)
+    #print(poststr)
     c.setopt(c.POSTFIELDS,poststr)
     c.perform()
 c.close()        
