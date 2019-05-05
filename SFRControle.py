@@ -19,8 +19,9 @@ parser.add_argument('-tt',dest='tcp',action='store_true',help='define that UDP p
 parser.add_argument('-tu',dest='udp',action='store_true',help='define that UDP protocol should be used for the filter ')
 parser.add_argument('-tb',dest='both',action='store_true',help='define that UDP and TCP protocol should be used for the filter ')
 parser.add_argument('-i',dest='ipforw',metavar='XXX.XXX.XXX.XXX',help=' define wich ip to forward should be used for the filter ')
+parser.add_argument('-r',dest='remove',action='store_true',help=' remove all port that respect the filters in arguments')
+parser.add_argument('-a',dest='add',action='store_true',help=' add a port rule with other parameters ')
 # -a add port option
-# -r remove port option
 args = parser.parse_args()
 print(args);
 
@@ -66,11 +67,12 @@ for tr in tree.xpath(tablexpath):
         idligne = idligne[0]
         portext = re.sub(r'[\\n\\t\\t]', '', str(tr.xpath(portextxpath)[0]))
         portint = re.sub(r'[\\n\\t\\t]', '', str(tr.xpath(portintxpath)[0]))
-        name = re.sub(r'[\\n\\t\\t]', '', str(tr.xpath(namexpath)[0]))
+        ## regex a revoir supprimer les t et n 
+        name = re.sub(r'[\\n\\t\\t\\]', '', str(tr.xpath(namexpath)[0]))
         protocol = re.sub(r'[\\n\\t\\t]', '', str(tr.xpath(protocolxpath)[0]))
         ipforw = re.sub(r'[\\n\\t\\t]', '', str(tr.xpath(ipforwxpath)[0]))
-        print(protocol)
         ## add other parameters
+        print(name)
         if(portext != args.portext and args.portext != None):
             ok = 0
         if(portint != args.portint and args.portint != None):
@@ -88,13 +90,45 @@ for tr in tree.xpath(tablexpath):
         if(ok == 1):
             ids.append(idligne)    
 print(ids)
+poststr = "login="+args.routerlogin+"&password="+args.routerpass
 for id in ids :
-    poststr = "login="+args.routerlogin+"&password="+args.routerpass
     ## add other action
     if(args.enable == True):
         poststr = poststr+"&action_enable."+id+"=1"
     if(args.disable == True):
         poststr = poststr+"&action_disable."+id+"=1"
+    if(args.remove == True):
+        poststr = poststr+"&action_remove."+id+"=1"
+    print(poststr)
+    c.setopt(c.POSTFIELDS,poststr)
+    c.perform()
+if(args.add == True):
+    poststr = poststr+"&action_add=1"
+    if(args.enable == True):
+         poststr = poststr+"&nat_active=on" 
+    else :
+        poststr = poststr+"&nat_active=off"
+    poststr = poststr+"&nat_dstip_p0=192"
+    poststr = poststr+"&nat_dstip_p1=168"
+    poststr = poststr+"&nat_dstip_p2=1"
+    poststr = poststr+"&nat_dstip_p3="+args.ipforw.split(".")[3]
+    poststr = poststr+"&nat_rulename="+args.name
+    if(args.both == True):
+        poststr = poststr+"&nat_proto=both"
+    elif(args.tcp == True):
+        poststr = poststr+"&nat_proto=tcp"
+    elif(args.udp == True):
+        poststr = poststr+"&nat_proto=udp"
+    if(len(args.portext.split("-")) > 1):
+        poststr = poststr+"&nat_range=true"
+        poststr = poststr+"&nat_extrange_p0="+args.portext.split("-")[0]
+        poststr = poststr+"&nat_extrange_p1="+args.portext.split("-")[1]
+        poststr = poststr+"&nat_dstrange_p0="+args.portint.split("-")[0]
+        poststr = poststr+"&nat_dstrange_p1="+args.portint.split("-")[1]
+    else :
+        poststr = poststr+"&nat_range=false"
+        poststr = poststr+"&nat_extport="+args.portext
+        poststr = poststr+"&nat_dstport="+args.portint
     print(poststr)
     c.setopt(c.POSTFIELDS,poststr)
     c.perform()
