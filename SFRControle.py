@@ -24,7 +24,8 @@ parser.add_argument('-a',dest='add',action='store_true',help=' add a port rule w
 # -a add port option
 args = parser.parse_args()
 #print(args);
-
+if(args.routerip == None):
+    exit(" missing arguments ")
 buffer = BytesIO()
 c = pycurl.Curl()
 c.setopt(c.URL,args.routerip+'/login')
