@@ -65,12 +65,12 @@ for tr in tree.xpath(tablexpath):
     idligne = tr.xpath(idxpath)
     if(len(idligne) != 0):
         idligne = idligne[0]
-        portext = re.sub(r'[\\n\\t\\t]', '', str(tr.xpath(portextxpath)[0]))
-        portint = re.sub(r'[\\n\\t\\t]', '', str(tr.xpath(portintxpath)[0]))
+        portext = re.sub(r'\\t','',re.sub(r'\\n', '', str(tr.xpath(portextxpath)[0])))
+        portint = re.sub(r'\\t','',re.sub(r'\\n', '', str(tr.xpath(portintxpath)[0])))
         ## regex a revoir supprimer les t et n 
-        name = re.sub(r'[\\n\\t\\t\\]', '', str(tr.xpath(namexpath)[0]))
-        protocol = re.sub(r'[\\n\\t\\t]', '', str(tr.xpath(protocolxpath)[0]))
-        ipforw = re.sub(r'[\\n\\t\\t]', '', str(tr.xpath(ipforwxpath)[0]))
+        name = re.sub(r'\\t','',re.sub(r'\\n', '', str(tr.xpath(namexpath)[0])))
+        protocol = re.sub(r'\\t','',re.sub(r'\\n', '',str(tr.xpath(protocolxpath)[0])))
+        ipforw = re.sub(r'\\t','',re.sub(r'\\n', '', str(tr.xpath(ipforwxpath)[0])))
         ## add other parameters
         print(name)
         if(portext != args.portext and args.portext != None):
